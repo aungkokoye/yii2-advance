@@ -40,3 +40,10 @@ database: yii
     customer_image_id:integer:notNull:foreignKey(file),title:string:notNull,customerName:string:notNull,
     review:text:notNull,rating:integer:notNull"
 ```
+
+#### Gii
+Gii is Yii's code generation tool. You can access it by navigating to:
+
+```
+http://localhost:8375/gii
+```
