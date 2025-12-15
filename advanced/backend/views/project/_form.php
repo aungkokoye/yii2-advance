@@ -1,5 +1,6 @@
 <?php
 
+use kartik\editors\Summernote;
 use yii\helpers\Html;
 use yii\jui\DatePicker;
 use yii\widgets\ActiveForm;
@@ -23,18 +24,22 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'tech_stack')->textarea(['rows' => 6]) ?>
+    <?= $form->field($model, 'tech_stack')->widget(Summernote::class, [
+        'useKrajeePresets' => true,
+    ]) ?>
 
-    <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
+    <?= $form->field($model, 'description')->widget(Summernote::class, [
+        'useKrajeePresets' => true,
+    ]) ?>
 
     <?= $form->field($model, 'start_date')->widget(DatePicker::class, [
         'dateFormat' => 'yyyy-MM-dd',
-        'options' => ['class' => 'form-control', 'readonly' => true],
+        'options' => ['class' => 'form-control'],
     ]) ?>
 
     <?= $form->field($model, 'end_date')->widget(DatePicker::class, [
         'dateFormat' => 'yyyy-MM-dd',
-        'options' => ['class' => 'form-control', 'readonly' => true],
+        'options' => ['class' => 'form-control'],
     ]) ?>
 
     <div class="form-group mt-4">

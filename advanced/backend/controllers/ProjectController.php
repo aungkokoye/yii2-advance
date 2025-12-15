@@ -1,12 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace backend\controllers;
 
 use common\models\Project;
 use backend\models\ProjectSearch;
+use Yii;
+use yii\db\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 
 /**
  * ProjectController implements the CRUD actions for Project model.
@@ -16,13 +20,13 @@ class ProjectController extends Controller
     /**
      * @inheritDoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return array_merge(
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -36,7 +40,7 @@ class ProjectController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
+    public function actionIndex(): string
     {
         $searchModel = new ProjectSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
@@ -53,7 +57,7 @@ class ProjectController extends Controller
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public function actionView(int $id): string
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
@@ -63,14 +67,16 @@ class ProjectController extends Controller
     /**
      * Creates a new Project model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * @return string|Response
+     * @throws Exception
      */
-    public function actionCreate()
+    public function actionCreate(): string|Response
     {
         $model = new Project();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
+                Yii::$app->session->setFlash('success', 'Project created successfully.');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -86,14 +92,15 @@ class ProjectController extends Controller
      * Updates an existing Project model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return string|Response
+     * @throws NotFoundHttpException|Exception if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id): string|Response
     {
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Project updated successfully.');
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -106,12 +113,14 @@ class ProjectController extends Controller
      * Deletes an existing Project model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return Response
+     * @throws NotFoundHttpException| Exception|\Throwable if the model cannot be found
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id): Response
     {
         $this->findModel($id)->delete();
+
+        Yii::$app->session->setFlash('success', 'Project deleted successfully.');
 
         return $this->redirect(['index']);
     }
@@ -123,7 +132,7 @@ class ProjectController extends Controller
      * @return Project the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel(int $id): Project
     {
         if (($model = Project::findOne(['id' => $id])) !== null) {
             return $model;

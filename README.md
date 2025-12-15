@@ -77,3 +77,9 @@ database: yii_advanced
     customer_image_id:integer:notNull:foreignKey(file),title:string:notNull,customerName:string:notNull,
     review:text:notNull,rating:integer:notNull"
 ```
+
+#### Yii2 Plugins Demo URL
+````
+https://demos.krajee.com/
+
+````
