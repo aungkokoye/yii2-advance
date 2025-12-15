@@ -11,6 +11,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
+use yii\web\UploadedFile;
 
 /**
  * ProjectController implements the CRUD actions for Project model.
@@ -69,13 +70,16 @@ class ProjectController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|Response
      * @throws Exception
+     * @throws \Throwable
      */
     public function actionCreate(): string|Response
     {
         $model = new Project();
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->uploadedFile = UploadedFile::getInstance($model, 'uploadedFile');
+            if ($model->save()) {
+                $model->uploadImage();
                 Yii::$app->session->setFlash('success', 'Project created successfully.');
                 return $this->redirect(['view', 'id' => $model->id]);
             }

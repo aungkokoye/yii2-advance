@@ -6,6 +6,8 @@ namespace common\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\Connection;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "project".
@@ -22,7 +24,7 @@ use yii\db\ActiveRecord;
  */
 class Project extends ActiveRecord
 {
-
+    public UploadedFile| string | null $uploadedFile = null;
 
     /**
      * {@inheritdoc}
@@ -44,6 +46,14 @@ class Project extends ActiveRecord
             [['tech_stack', 'description'], 'string'],
             [['start_date', 'end_date'], 'safe'],
             [['name'], 'string', 'max' => 255],
+            [
+                ['uploadedFile'],
+                'file',
+                'skipOnEmpty' => false,
+                'extensions' => 'png, jpg, jpeg, gif',
+                'maxFiles' => 1,
+                'maxSize' => 2 * 1024 * 1024,
+            ],
         ];
     }
 
@@ -91,4 +101,30 @@ class Project extends ActiveRecord
         return new ProjectQuery(get_called_class());
     }
 
+    /**
+     * @throws \Throwable
+     */
+    public function uploadImage(): void
+    {
+        if ($this->uploadedFile === null) {
+            return;
+        }
+
+        Yii::$app->db->transaction(function (Connection $db) {
+            $file = new File();
+            $file->name = uniqid() . '.' . $this->uploadedFile->extension;
+            $file->base_url = Yii::$app->urlManager->createAbsoluteUrl(Yii::$app->params['uploads']['projects']);
+            $file->mime_type = $this->uploadedFile->type;
+            $file->save();
+
+            $projectImage = new ProjectImage();
+            $projectImage->project_id = $this->id;
+            $projectImage->file_id = $file->id;
+            $projectImage->save();
+
+            if (!$this->uploadedFile->saveAs(Yii::$app->params['uploads']['projects'] . $file->name)) {
+                $db->transaction->rollBack();
+            }
+        });
+    }
 }
