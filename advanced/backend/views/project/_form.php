@@ -11,7 +11,15 @@ use yii\widgets\ActiveForm;
 
 <div class="project-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'fieldConfig' => [
+            'options' => ['class' => 'form-group mb-4'],
+            'errorOptions' => ['class' => 'invalid-feedback d-block text-danger'],
+            'inputOptions' => ['class' => 'form-control'],
+            'labelOptions' => ['class' => 'form-label'],
+        ],
+        'requiredCssClass' => 'required',
+    ]); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
@@ -20,10 +28,12 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
     <?= $form->field($model, 'start_date')->widget(DatePicker::class, [
+        'dateFormat' => 'yyyy-MM-dd',
         'options' => ['class' => 'form-control', 'readonly' => true],
     ]) ?>
 
     <?= $form->field($model, 'end_date')->widget(DatePicker::class, [
+        'dateFormat' => 'yyyy-MM-dd',
         'options' => ['class' => 'form-control', 'readonly' => true],
     ]) ?>
 

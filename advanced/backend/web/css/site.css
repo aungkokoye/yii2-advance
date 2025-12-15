@@ -88,3 +88,11 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
+
+/* Required field indicator */
+.required label:after,
+.required > label:after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
