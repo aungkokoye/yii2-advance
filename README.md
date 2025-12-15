@@ -6,7 +6,8 @@ PHP 8.4 | Yii 2.x | MySQL 8.0 | Docker Compose 3.8 | Composer 2.8
 
 #### Repository URL
 ````
-```git@github.com-third:aungkokoye/yii2-basic.git```
+git@github.com-third:aungkokoye/yii2-basic.git
+````
 
 #### how to start docker
 ````
@@ -40,14 +41,23 @@ Debug Toolbar is Yii's debugging tool.
 
 ````
 Frontend:
+
 http://localhost:8380
+
 http://localhost:8380/gii
+
 http://localhost:8380/debug
+````
+
+````
 Backend:
+
 http://localhost:8381
+
 http://localhost:8381/gii
+
 http://localhost:8381/debug
-```
+````
 
 #### PHPStorm IDE
 DB settings
