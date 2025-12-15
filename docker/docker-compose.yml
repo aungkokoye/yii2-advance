@@ -3,13 +3,14 @@ services:
     build:
       context: ./php-apache
       dockerfile: Dockerfile
-    container_name: yii_app
+    container_name: yii_advanced_app
     restart: unless-stopped
     ports:
-      - "8375:80"
+      - "8380:80"
       - "9001:9001"
+      - "8381:8880"
     volumes:
-      - ../basic:/var/www/html
+      - ../advanced:/var/www/html
       - ./php-apache/vhost.config:/etc/apache2/sites-available/000-default.conf
     environment:
       APACHE_DOCUMENT_ROOT: /var/www/html/web
@@ -18,26 +19,26 @@ services:
     depends_on:
       - db
     networks:
-      - yii2
+      - yii_advanced
 
   db:
     image: mysql:8.0
-    container_name: yii_db
+    container_name: yii_advanced_db
     restart: unless-stopped
     ports:
-      - "3606:3306"
+      - "3206:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: yii
+      MYSQL_DATABASE: yii_advanced
       MYSQL_USER: yii
       MYSQL_PASSWORD: yii
     volumes:
-      - db_data:/var/lib/mysql
+      - db_advanced_data:/var/lib/mysql
     networks:
-      - yii2
+      - yii_advanced
 
 networks:
-  yii2:
+  yii_advanced:
 
 volumes:
-  db_data:
+  db_advanced_data:

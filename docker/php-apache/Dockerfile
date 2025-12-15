@@ -39,5 +39,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Configure Apache to listen on port 8880 for backend
+RUN echo "Listen 8880" >> /etc/apache2/ports.conf
 
 WORKDIR /var/www/html

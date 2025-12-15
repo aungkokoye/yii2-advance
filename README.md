@@ -1,4 +1,4 @@
-## About Yii2 Basic Tutorial
+## About Yii2 Advance Tutorial
 
 ***compatible with Apple (Mac Silicon | Intel Silicon)***
 
@@ -21,15 +21,42 @@ docker compose down
 #### Inside app web container
 ````
 docker exec -it yii_app bash
+````
+#### Debug Docker Containers
+````
+docker ps
+docker logs <container_id>
+
+OR 
+
+cd docker && docker-compose logs --tail=50 app
+````
+
+#### Webpage, Gii & Debug Toolbar
+
+Webpage is entry point to your Yii applications (bankend or frontend).
+Gii is Yii's code generation tool. 
+Debug Toolbar is Yii's debugging tool. 
+
+````
+Frontend:
+http://localhost:8380
+http://localhost:8380/gii
+http://localhost:8380/debug
+Backend:
+http://localhost:8381
+http://localhost:8381/gii
+http://localhost:8381/debug
+```
 
 #### PHPStorm IDE
 DB settings
 ````
 host: 127.0.0.1
-port: 3606
+port: 3206
 user: root
 password: root
-database: yii
+database: yii_advanced
 ````
 #### Yii migration commands
 ```
@@ -39,11 +66,4 @@ database: yii
  php yii  migrate/create create_testimonial_table --fields="project_id:integer:notNull:foreignKey,
     customer_image_id:integer:notNull:foreignKey(file),title:string:notNull,customerName:string:notNull,
     review:text:notNull,rating:integer:notNull"
-```
-
-#### Gii
-Gii is Yii's code generation tool. You can access it by navigating to:
-
-```
-http://localhost:8375/gii
 ```
