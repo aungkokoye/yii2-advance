@@ -13,7 +13,6 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
-use yii\web\UploadedFile;
 
 /**
  * ProjectController implements the CRUD actions for Project model.
@@ -80,9 +79,9 @@ class ProjectController extends Controller
         $model = new Project();
 
         if ($this->request->isPost && $model->load($this->request->post())) {
-            $model->uploadedFile = UploadedFile::getInstance($model, 'uploadedFile');
+            $model->uploadImageFiles();
             if ($model->save()) {
-                $model->uploadImage();
+                $model->uploadImages();
                 Yii::$app->session->setFlash('success', 'Project created successfully.');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -108,9 +107,9 @@ class ProjectController extends Controller
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post())) {
-            $model->uploadedFile = UploadedFile::getInstance($model, 'uploadedFile');
+            $model->uploadImageFiles();
             if($model->save()) {
-                $model->uploadImage();
+                $model->uploadImages();
                 Yii::$app->session->setFlash('success', 'Project updated successfully.');
                 return $this->redirect(['view', 'id' => $model->id]);
             }

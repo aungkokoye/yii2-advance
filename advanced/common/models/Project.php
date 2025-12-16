@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace common\models;
 
+use yii\imagine\Image;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -20,11 +21,16 @@ use yii\web\UploadedFile;
  * @property string|null $end_date
  *
  * @property ProjectImage[] $projectImages
+ * @property-read array $imageUrls
+ * @property-read array $previewImageConfig
  * @property Testimonial[] $testimonials
  */
 class Project extends ActiveRecord
 {
-    public UploadedFile| string | null $uploadedFile = null;
+    /**
+     * @var UploadedFile[]|null
+     */
+    public $uploadedFiles;
 
     /**
      * {@inheritdoc}
@@ -47,12 +53,12 @@ class Project extends ActiveRecord
             [['start_date', 'end_date'], 'safe'],
             [['name'], 'string', 'max' => 255],
             [
-                ['uploadedFile'],
+                ['uploadedFiles'],
                 'file',
-                'skipOnEmpty' => false,
-                'extensions' => 'png, jpg, jpeg, gif',
-                'maxFiles' => 1,
-                'maxSize' => 2 * 1024 * 1024,
+                'skipOnEmpty'   => true,
+                'extensions'    => implode(",", Yii::$app->params['allowedUploadImageExtensions']),
+                'maxFiles'      => Yii::$app->params['maxUploadFiles'],
+                'maxSize'       => Yii::$app->params['maxUploadFileSize'],
             ],
         ];
     }
@@ -104,29 +110,33 @@ class Project extends ActiveRecord
     /**
      * @throws \Throwable
      */
-    public function uploadImage(): void
+    public function uploadImages(): void
     {
-        if ($this->uploadedFile === null) {
+        if (empty($this->uploadedFiles)) {
             return;
         }
 
-        Yii::$app->db->transaction(function (Connection $db) {
-            $file = new File();
-            $file->name = uniqid() . '.' . $this->uploadedFile->extension;
-            $file->path_url = Yii::$app->params['uploads']['projects'];
-            $file->base_url = Yii::$app->urlManager->createAbsoluteUrl($file->path_url);
-            $file->mime_type = $this->uploadedFile->type;
-            $file->save();
+        foreach ($this->uploadedFiles as $uploadedFile) {
+            Yii::$app->db->transaction(function (Connection $db) use($uploadedFile) {
+                $file = new File();
+                $file->name = uniqid() . '.' . $uploadedFile->extension;
+                $file->path_url = Yii::$app->params['uploads']['projects'];
+                $file->base_url = Yii::$app->urlManager->createAbsoluteUrl($file->path_url);
+                $file->mime_type = $uploadedFile->type;
+                $file->save();
 
-            $projectImage = new ProjectImage();
-            $projectImage->project_id = $this->id;
-            $projectImage->file_id = $file->id;
-            $projectImage->save();
+                $projectImage = new ProjectImage();
+                $projectImage->project_id = $this->id;
+                $projectImage->file_id = $file->id;
+                $projectImage->save();
 
-            if (!$this->uploadedFile->saveAs($file->getPathUrl())) {
-                $db->transaction->rollBack();
-            }
-        });
+                $thumbnail = Image::thumbnail($uploadedFile->tempName, null, 1080);
+
+                if (!$thumbnail->save($file->getPathUrl())) {
+                    $db->transaction->rollBack();
+                }
+            });
+        }
     }
 
     public function hasImage(): bool
@@ -151,5 +161,10 @@ class Project extends ActiveRecord
         }
 
         return $config;
+    }
+
+    public function uploadImageFiles(): void
+    {
+        $this->uploadedFiles = UploadedFile::getInstances($this, 'uploadedFiles');
     }
 }

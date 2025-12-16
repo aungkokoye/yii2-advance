@@ -44,16 +44,20 @@ use yii\widgets\ActiveForm;
         'options' => ['class' => 'form-control'],
     ]) ?>
 
-    <?=  $form->field($model, 'uploadedFile')->widget(FileInput::class, [
-            'options' => ['accept' => 'image/*'],
+    <?=  $form->field($model, 'uploadedFiles[]')->widget(FileInput::class, [
+            'options' => [
+                    'accept'    => 'image/*',
+                    'multiple'  =>  true
+            ],
             'pluginOptions' => [
                 'showUpload'            => false,
                 'showRemove'            => true,
                 'showClose'             => false, // Disable close (x) icon
-                'allowedFileExtensions' => ['jpg', 'jpeg', 'png', 'gif'],
-                'maxFileSize'           => 2048, //2MB
+                'allowedFileExtensions' => Yii::$app->params['allowedUploadImageExtensions'],
+                'maxFileCount'          => Yii::$app->params['maxUploadFiles'],
+                'maxFileSize'           => Yii::$app->params['maxUploadFileSize'] / 1024, // Convert bytes to KB
                 'initialPreview'        => $model->getImageUrls(), // preview images absolute URLs array
-                'initialPreviewAsData'  => true, // preview images set as data
+                'initialPreviewAsData'  => true, // preview images set as data [ 'key' => 'model-id' ]
                 'deleteUrl'             => Url::to(['project/delete-project-image']),
                 'initialPreviewConfig'  => $model->getPreviewImageConfig(),
                 'fileActionSettings'    => [
