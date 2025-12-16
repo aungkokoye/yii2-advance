@@ -2,6 +2,6 @@
 return [
     'adminEmail' => 'admin@example.com',
     'uploads' => [
-        'projects' => 'uploads/projects/'
+        'projects' => 'uploads/projects'
     ],
 ];

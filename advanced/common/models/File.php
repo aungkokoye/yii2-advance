@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $name
+ * @property string $path_url
  * @property string $base_url
  * @property string $mime_type
  *
@@ -35,8 +36,8 @@ class File extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['name', 'base_url', 'mime_type'], 'required'],
-            [['name', 'base_url', 'mime_type'], 'string', 'max' => 255],
+            [['name', 'base_url', 'mime_type', 'path_url'], 'required'],
+            [['name', 'base_url', 'mime_type', 'path_url'], 'string', 'max' => 255],
         ];
     }
 
@@ -49,6 +50,7 @@ class File extends ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'name' => Yii::t('app', 'Name'),
             'base_url' => Yii::t('app', 'Base Url'),
+            'path_url' => Yii::t('app', 'Path Url'),
             'mime_type' => Yii::t('app', 'Mime Type'),
         ];
     }
@@ -73,4 +75,23 @@ class File extends ActiveRecord
         return $this->hasMany(Testimonial::class, ['customer_image_id' => 'id']);
     }
 
+    public function getImageUrl(): string
+    {
+        return rtrim($this->base_url, '/') . '/' . ltrim($this->name, '/');
+    }
+
+    public function getPathUrl(): string
+    {
+        return rtrim($this->path_url, '/') . '/' . ltrim($this->name, '/');
+    }
+
+    public function AfterDelete(): void
+    {
+        parent::afterDelete();
+
+        $filePath = Yii::getAlias('@webroot') . '/' . $this->getPathUrl();
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+    }
 }

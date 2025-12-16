@@ -1,5 +1,8 @@
 <?php
 
+use common\models\File;
+use common\models\Project;
+use common\models\ProjectImage;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -31,6 +34,26 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
+            [
+                'label' => Yii::t('app', 'Image'),
+                'format' => 'html',
+                'value' => function ($model) {
+                    /** @var  Project $model */
+                    if (!$model->hasImage()) {
+                        return null;
+                    }
+                     $htmlImages = "";
+                    foreach ($model->projectImages as $image) {
+                        $htmlImages .= Html::img($image->file->getImageUrl(),
+                            [
+                                    'style' => 'margin-right:10px;',
+                                    'height'=> 200,
+                            ]);
+                    }
+
+                    return $htmlImages;
+                }
+            ],
             'tech_stack:html',
             'description:html',
             'start_date',

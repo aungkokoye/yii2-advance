@@ -5,8 +5,10 @@ namespace backend\controllers;
 
 use common\models\Project;
 use backend\models\ProjectSearch;
+use common\models\ProjectImage;
 use Yii;
 use yii\db\Exception;
+use yii\db\StaleObjectException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -29,7 +31,8 @@ class ProjectController extends Controller
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [
-                        'delete' => ['POST'],
+                        'delete'                => ['POST'],
+                        'delete-project-image'  => ['POST'],
                     ],
                 ],
             ]
@@ -98,14 +101,19 @@ class ProjectController extends Controller
      * @param int $id ID
      * @return string|Response
      * @throws NotFoundHttpException|Exception if the model cannot be found
+     * @throws \Throwable
      */
     public function actionUpdate(int $id): string|Response
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Project updated successfully.');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->uploadedFile = UploadedFile::getInstance($model, 'uploadedFile');
+            if($model->save()) {
+                $model->uploadImage();
+                Yii::$app->session->setFlash('success', 'Project updated successfully.');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
@@ -127,6 +135,29 @@ class ProjectController extends Controller
         Yii::$app->session->setFlash('success', 'Project deleted successfully.');
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * Deletes a project image via AJAX.
+     * @return Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws StaleObjectException
+     */
+    public function actionDeleteProjectImage(): Response
+    {
+        /** Krajee FileInput plugin delete Ajax event sends key as delete file key, not id */
+        $image = ProjectImage::findOne(['id' => $this->request->post('key')]);
+        if(!$image) {
+            throw new NotFoundHttpException(Yii::t('app', 'The requested image file does not exist.'));
+        }
+
+        /** https://plugins.krajee.com/file-input/plugin-options#deleteUrl */
+        if ($image->file->delete()) {
+            return $this->asJson(null);
+        }
+
+        return $this->asJson(['error' => true]);
     }
 
     /**

@@ -113,7 +113,8 @@ class Project extends ActiveRecord
         Yii::$app->db->transaction(function (Connection $db) {
             $file = new File();
             $file->name = uniqid() . '.' . $this->uploadedFile->extension;
-            $file->base_url = Yii::$app->urlManager->createAbsoluteUrl(Yii::$app->params['uploads']['projects']);
+            $file->path_url = Yii::$app->params['uploads']['projects'];
+            $file->base_url = Yii::$app->urlManager->createAbsoluteUrl($file->path_url);
             $file->mime_type = $this->uploadedFile->type;
             $file->save();
 
@@ -122,9 +123,33 @@ class Project extends ActiveRecord
             $projectImage->file_id = $file->id;
             $projectImage->save();
 
-            if (!$this->uploadedFile->saveAs(Yii::$app->params['uploads']['projects'] . $file->name)) {
+            if (!$this->uploadedFile->saveAs($file->getPathUrl())) {
                 $db->transaction->rollBack();
             }
         });
+    }
+
+    public function hasImage(): bool
+    {
+        return count($this->projectImages) > 0;
+    }
+
+    public function getImageUrls(): array
+    {
+        $urls = [];
+        foreach ($this->projectImages as $image) {
+            $urls[] = $image->file->getImageUrl();
+        }
+
+        return $urls;
+    }
+
+    public function getPreviewImageConfig(): array {
+        $config = [];
+        foreach ($this->projectImages as $image) {
+            $config[] = ['key' => $image->id];
+        }
+
+        return $config;
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
 use kartik\editors\Summernote;
+use kartik\file\FileInput;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\jui\DatePicker;
 use yii\widgets\ActiveForm;
 
@@ -42,7 +44,27 @@ use yii\widgets\ActiveForm;
         'options' => ['class' => 'form-control'],
     ]) ?>
 
-    <?= $form->field($model, 'uploadedFile')->fileInput([]) ?>
+    <?=  $form->field($model, 'uploadedFile')->widget(FileInput::class, [
+            'options' => ['accept' => 'image/*'],
+            'pluginOptions' => [
+                'showUpload'            => false,
+                'showRemove'            => true,
+                'showClose'             => false, // Disable close (x) icon
+                'allowedFileExtensions' => ['jpg', 'jpeg', 'png', 'gif'],
+                'maxFileSize'           => 2048, //2MB
+                'initialPreview'        => $model->getImageUrls(), // preview images absolute URLs array
+                'initialPreviewAsData'  => true, // preview images set as data
+                'deleteUrl'             => Url::to(['project/delete-project-image']),
+                'initialPreviewConfig'  => $model->getPreviewImageConfig(),
+                'fileActionSettings'    => [
+                    'showZoom'    => false, // Hide zoom/enlarge icon
+                    'showRemove'  => true,  // Show delete icon
+                    'showUpload'  => false, // Hide upload icon
+                    'showDrag'    => false, // Hide drag icon
+                ],
+            ]
+        ])
+    ?>
 
     <div class="form-group mt-4">
         <?= Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-success']) ?>
