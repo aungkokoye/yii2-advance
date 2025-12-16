@@ -55,7 +55,7 @@ class Project extends ActiveRecord
             [
                 ['uploadedFiles'],
                 'file',
-                'skipOnEmpty'   => true,
+                'skipOnEmpty'   => false,
                 'extensions'    => implode(",", Yii::$app->params['allowedUploadImageExtensions']),
                 'maxFiles'      => Yii::$app->params['maxUploadFiles'],
                 'maxSize'       => Yii::$app->params['maxUploadFileSize'],
@@ -69,12 +69,12 @@ class Project extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'name' => Yii::t('app', 'Name'),
-            'tech_stack' => Yii::t('app', 'Tech Stack'),
-            'description' => Yii::t('app', 'Description'),
-            'start_date' => Yii::t('app', 'Start Date'),
-            'end_date' => Yii::t('app', 'End Date'),
+            'id'            => Yii::t('app', 'ID'),
+            'name'          => Yii::t('app', 'Name'),
+            'tech_stack'    => Yii::t('app', 'Tech Stack'),
+            'description'   => Yii::t('app', 'Description'),
+            'start_date'    => Yii::t('app', 'Start Date'),
+            'end_date'      => Yii::t('app', 'End Date'),
         ];
     }
 

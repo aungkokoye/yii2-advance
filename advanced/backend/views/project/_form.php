@@ -58,7 +58,7 @@ use yii\widgets\ActiveForm;
                 'maxFileSize'           => Yii::$app->params['maxUploadFileSize'] / 1024, // Convert bytes to KB
                 'initialPreview'        => $model->getImageUrls(), // preview images absolute URLs array
                 'initialPreviewAsData'  => true, // preview images set as data [ 'key' => 'model-id' ]
-                'deleteUrl'             => Url::to(['project/delete-project-image']),
+                'deleteUrl'             => Url::to(['project/delete-image']),
                 'initialPreviewConfig'  => $model->getPreviewImageConfig(),
                 'fileActionSettings'    => [
                     'showZoom'    => false, // Hide zoom/enlarge icon

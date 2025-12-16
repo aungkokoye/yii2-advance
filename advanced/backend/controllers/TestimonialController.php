@@ -3,21 +3,26 @@ declare(strict_types=1);
 
 namespace backend\controllers;
 
+use common\models\File;
 use common\models\Project;
-use backend\models\ProjectSearch;
 use common\models\ProjectImage;
+use common\models\Testimonial;
+use backend\models\TestimonialSearch;
 use Yii;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
 
 /**
- * ProjectController implements the CRUD actions for Project model.
+ * TestimonialController implements the CRUD actions for Testimonial model.
+ *
+ * @property-read array $projectDropdownData
  */
-class ProjectController extends Controller
+class TestimonialController extends Controller
 {
     /**
      * @inheritDoc
@@ -28,10 +33,9 @@ class ProjectController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::class,
+                    'class' => VerbFilter::className(),
                     'actions' => [
-                        'delete'                => ['POST'],
-                        'delete-project-image'  => ['POST'],
+                        'delete' => ['POST'],
                     ],
                 ],
             ]
@@ -39,13 +43,13 @@ class ProjectController extends Controller
     }
 
     /**
-     * Lists all Project models.
+     * Lists all Testimonial models.
      *
      * @return string
      */
     public function actionIndex(): string
     {
-        $searchModel = new ProjectSearch();
+        $searchModel = new TestimonialSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
@@ -55,7 +59,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * Displays a single Project model.
+     * Displays a single Testimonial model.
      * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
@@ -68,7 +72,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * Creates a new Project model.
+     * Creates a new Testimonial model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|Response
      * @throws Exception
@@ -76,13 +80,11 @@ class ProjectController extends Controller
      */
     public function actionCreate(): string|Response
     {
-        $model = new Project();
+        $model = new Testimonial();
 
-        if ($this->request->isPost && $model->load($this->request->post())) {
-            $model->uploadImageFiles();
-            if ($model->save()) {
-                $model->uploadImages();
-                Yii::$app->session->setFlash('success', 'Project created successfully.');
+        if ($this->request->isPost && $model->load($this->request->post()) ) {
+            $model->uploadImageFile();
+            if ($model->uploadImage()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -91,68 +93,64 @@ class ProjectController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+            'projectsDropdownData' => $this->getProjectDropdownData(),
         ]);
     }
 
     /**
-     * Updates an existing Project model.
+     * Updates an existing Testimonial model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return string|Response
      * @throws NotFoundHttpException|Exception if the model cannot be found
      * @throws \Throwable
      */
-    public function actionUpdate(int $id): string|Response
+    public function actionUpdate(int $id): Response|string
     {
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post())) {
-            $model->uploadImageFiles();
-            if($model->save()) {
-                $model->uploadImages();
-                Yii::$app->session->setFlash('success', 'Project updated successfully.');
+            $model->uploadImageFile();
+            if ($model->uploadImage()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
 
         return $this->render('update', [
             'model' => $model,
+            'projectsDropdownData' => $this->getProjectDropdownData(),
         ]);
     }
 
     /**
-     * Deletes an existing Project model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return Response
-     * @throws NotFoundHttpException| Exception|\Throwable if the model cannot be found
-     */
-    public function actionDelete(int $id): Response
-    {
-        $this->findModel($id)->delete();
-
-        Yii::$app->session->setFlash('success', 'Project deleted successfully.');
-
-        return $this->redirect(['index']);
-    }
-
-    /**
-     * Deletes a project image via AJAX.
+     *  Deletes an existing Testimonial model.
+     *  If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param int $id
      * @return Response
      * @throws NotFoundHttpException
      * @throws \Throwable
      * @throws StaleObjectException
      */
+    public function actionDelete(int $id): Response
+    {
+        $this->findModel($id)->delete();
+
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * @throws StaleObjectException
+     * @throws \Throwable
+     * @throws NotFoundHttpException
+     */
     public function actionDeleteImage(): Response
     {
-        /** Krajee FileInput plugin delete Ajax event sends key as delete file key, not id */
-        $image = ProjectImage::findOne(['id' => $this->request->post('key')]);
+        $image = File::findOne(['id' => $this->request->post('key')]);
         if(!$image) {
             throw new NotFoundHttpException(Yii::t('app', 'The requested image file does not exist.'));
         }
 
-        /** https://plugins.krajee.com/file-input/plugin-options#deleteUrl */
-        if ($image->file->delete()) {
+        if ($image->delete()) {
             return $this->asJson(null);
         }
 
@@ -160,18 +158,23 @@ class ProjectController extends Controller
     }
 
     /**
-     * Finds the Project model based on its primary key value.
+     * Finds the Testimonial model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Project the loaded model
+     * @return Testimonial the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel(int $id): Project
+    protected function findModel(int $id): Testimonial
     {
-        if (($model = Project::findOne(['id' => $id])) !== null) {
+        if (($model = Testimonial::findOne(['id' => $id])) !== null) {
             return $model;
         }
 
         throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+    }
+
+    private function getProjectDropdownData(): array
+    {
+        return ArrayHelper::map(Project::find()->all(), 'id', 'name');
     }
 }
