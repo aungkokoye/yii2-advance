@@ -44,7 +44,8 @@ class Testimonial extends ActiveRecord
     {
         return [
             [['project_id', 'title', 'customerName', 'review', 'rating'], 'required'],
-            [['project_id', 'customer_image_id', 'rating'], 'integer'],
+            [['project_id', 'customer_image_id'], 'integer'],
+            [['rating'], 'integer', 'min' => 1, 'max' => 5],
             [['review'], 'string'],
             [['title', 'customerName'], 'string', 'max' => 255],
             [['customer_image_id'], 'exist', 'skipOnError' => true, 'targetClass' => File::class, 'targetAttribute' => ['customer_image_id' => 'id']],
@@ -66,8 +67,8 @@ class Testimonial extends ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'project_id' => Yii::t('app', 'Project ID'),
-            'customer_image_id' => Yii::t('app', 'Customer Image ID'),
+            'project_id' => Yii::t('app', 'Project'),
+            'customer_image_id' => Yii::t('app', 'Customer Image'),
             'title' => Yii::t('app', 'Title'),
             'customerName' => Yii::t('app', 'Customer Name'),
             'review' => Yii::t('app', 'Review'),
@@ -148,7 +149,6 @@ class Testimonial extends ActiveRecord
             $file->save();
 
             $this->customer_image_id = $file->id;
-            $this->save();
 
             $thumbnail = Image::thumbnail($this->uploadedFile->tempName, null, 1080);
 

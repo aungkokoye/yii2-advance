@@ -9,6 +9,7 @@ use yii\grid\GridView;
 /** @var yii\web\View $this */
 /** @var backend\models\TestimonialSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
+/** @var array $projects */
 
 $this->title = Yii::t('app', 'Testimonials');
 $this->params['breadcrumbs'][] = $this->title;
@@ -23,25 +24,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <?= GridView::widget([
+    <?= $this->render('_grid', [
+        'searchModel'   => $searchModel,
         'dataProvider'  => $dataProvider,
-        'filterModel'   => $searchModel,
-        'columns' => [
-            'id',
-            'project_id',
-            'customer_image_id',
-            'title',
-            'customerName',
-            //'review:ntext',
-            //'rating',
-            [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Testimonial $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
-                 }
-            ],
-        ],
-    ]); ?>
-
+        'projects'      => $projects,
+        'projectShow'   => true,
+    ]) ?>
 
 </div>

@@ -8,11 +8,15 @@ use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var common\models\Project $model */
+/** @var backend\models\TestimonialSearch $searchModel */
+/** @var yii\data\ActiveDataProvider $dataProvider */
+/** @var array $projects */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Projects'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
+
 ?>
 <div class="project-view">
 
@@ -27,6 +31,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+    </p>
+
+    <p>
+        <?= Html::a(Yii::t('app', 'New Testimonial Create'), ['testimonial/create', 'project_id' => $model->id], ['class' => '']) ?>
     </p>
 
     <?= DetailView::widget([
@@ -59,6 +67,17 @@ $this->params['breadcrumbs'][] = $this->title;
             'start_date',
             'end_date',
         ],
+    ]) ?>
+
+    <div>
+        <h2><?= Yii::t('app', 'Testimonials') ?></h2>
+    </div>
+
+    <?= $this->render('/testimonial/_grid', [
+        'searchModel'   => $searchModel,
+        'dataProvider'  => $dataProvider,
+        'projects'      => $projects,
+        'projectShow'   => false,
     ]) ?>
 
 </div>

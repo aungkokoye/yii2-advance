@@ -18,7 +18,7 @@ class TestimonialSearch extends Testimonial
     public function rules(): array
     {
         return [
-            [['project_id', 'customer_image_id', 'rating'], 'integer'],
+            [['project_id', 'rating'], 'integer'],
             [['title', 'customerName', 'review'], 'safe'],
         ];
     }
@@ -43,12 +43,18 @@ class TestimonialSearch extends Testimonial
     public function search($params, $formName = null): ActiveDataProvider
     {
         $query = Testimonial::find();
+        $query->joinWith(['project']);
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $dataProvider->sort->attributes['project_id'] = [
+            'asc'   => ['project.name' => SORT_ASC],
+            'desc'  => ['project.name' => SORT_DESC],
+        ];
 
         $this->load($params, $formName);
 

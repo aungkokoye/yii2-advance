@@ -1,6 +1,7 @@
 <?php
 
 use common\models\Testimonial;
+use kartik\rating\StarRating;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -58,7 +59,17 @@ $this->params['breadcrumbs'][] = $this->title;
             'title',
             'customerName',
             'review:ntext',
-            'rating',
+            [
+                'attribute'     => 'rating',
+                'format'        => 'raw',
+                'value'         => function ($model) {
+                    return StarRating::widget([
+                        'name' => 'rating' . $model->id,
+                        'value' => $model->rating,
+                        'pluginOptions' => ['displayOnly' => true, 'size' => 'xs', 'showClear' => false, 'showCaption' => false],
+                    ]);
+                },
+            ],
         ],
     ]) ?>
 

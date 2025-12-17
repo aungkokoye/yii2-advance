@@ -53,8 +53,9 @@ class TestimonialController extends Controller
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+            'searchModel'   => $searchModel,
+            'dataProvider'  => $dataProvider,
+            'projects'      => ArrayHelper::map(Project::find()->all(), 'id', 'name'),
         ]);
     }
 
@@ -88,6 +89,7 @@ class TestimonialController extends Controller
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
+            $model->project_id = $this->request->get('project_id');
             $model->loadDefaultValues();
         }
 
@@ -111,7 +113,7 @@ class TestimonialController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
             $model->uploadImageFile();
-            if ($model->uploadImage()) {
+            if ($model->uploadImage() && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         }
