@@ -167,4 +167,26 @@ class Project extends ActiveRecord
     {
         $this->uploadedFiles = UploadedFile::getInstances($this, 'uploadedFiles');
     }
+
+    public function delete(): bool
+    {
+        $db = Yii::$app->db;
+        $db->beginTransaction();
+        try {
+            foreach ($this->projectImages as $projectImage) {
+                $projectImage->file->deleteInternal();
+            }
+
+            parent::deleteInternal();
+            $db->transaction->commit();
+            Yii::$app->session->setFlash('success', 'Project deleted successfully.');
+
+            return true;
+        } catch (\Throwable $e) {
+            $db->transaction->rollBack();
+            Yii::$app->session->setFlash('error', 'Project delete fail.');
+
+            return false;
+        }
+    }
 }

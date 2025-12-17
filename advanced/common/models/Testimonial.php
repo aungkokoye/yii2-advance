@@ -180,4 +180,23 @@ class Testimonial extends ActiveRecord
 
     }
 
+    public function delete(): bool
+    {
+        $db = Yii::$app->db;
+        $db->beginTransaction();
+
+        try {
+            $this->customerImage->deleteInternal();
+            parent::deleteInternal();
+            $db->transaction->commit();
+            Yii::$app->session->setFlash('success', 'Testimonial deleted successfully.');
+
+            return true;
+        } catch (\Throwable $e) {
+            $db->transaction->rollBack();
+            Yii::$app->session->setFlash('error', 'Testimonial delete fail.');
+
+            return false;
+        }
+    }
 }
