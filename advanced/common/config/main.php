@@ -18,5 +18,8 @@ return [
             'datetimeFormat'    => 'php:Y-m-d H:i:s',
             'timeFormat'        => 'php:H:i:s',
         ],
+        'assetManager' => [
+            'appendTimestamp' => true,
+        ],
     ],
 ];
