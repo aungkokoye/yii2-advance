@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace common\models;
 
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\imagine\Image;
 use Yii;
 use yii\db\ActiveQuery;
@@ -188,5 +190,12 @@ class Project extends ActiveRecord
 
             return false;
         }
+    }
+
+    public function getCarouselImageUrls(): array
+    {
+        return array_map(function ($imageUrl) {
+            return Html::img($imageUrl, ['alt' => $this->name, 'class' => 'project-view__carousel-image']);
+        }, $this->getImageUrls());
     }
 }

@@ -12,7 +12,7 @@ $this->title = Yii::$app->name . "- Profile";
             <?= Html::img('@web/images/site-profile.jpg',[ 'alt' => 'My profile picture', 'class' => 'site-profile__image'])?>
             <h2 class="site-title__h2"><?= Yii::t('app', "My name is Aung") ?></h2>
             <p><?= Yii::t('app', 'Passionate to create Yii2 websites or web applications') ?></p>
-            <p><?= Html::a(Yii::t('app','My Works'), ['project'], ['class' => 'btn btn-primary'])?></p>
+            <p><?= Html::a(Yii::t('app','My Works'), ['project/'], ['class' => 'btn btn-primary'])?></p>
         </div>
     </div>
 
