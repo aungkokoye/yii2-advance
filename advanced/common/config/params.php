@@ -9,5 +9,5 @@ return [
     'bsVersion' => '5.x',
     'maxUploadFiles'                => 3,
     'maxUploadFileSize'             => 2 * 1024 * 1024, // 2MB in bytes (2,097,152 bytes)
-    'allowedUploadImageExtensions'   => ['jpg', 'jpeg', 'png', 'gif']
+    'allowedUploadImageExtensions'  => ['jpg', 'jpeg', 'png', 'gif']
 ];
