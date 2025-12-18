@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace common\models;
 
-use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\imagine\Image;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Connection;
+use yii\validators\InlineValidator;
+use yii\validators\Validator;
 use yii\web\UploadedFile;
 
 /**
@@ -52,16 +53,20 @@ class Project extends ActiveRecord
             [['name', 'tech_stack', 'description', 'start_date'], 'required'],
             [['start_date', 'end_date'], 'date', 'format' => 'php:Y-m-d'],
             [['tech_stack', 'description'], 'string'],
-            [['start_date', 'end_date'], 'safe'],
             [['name'], 'string', 'max' => 255],
             [
                 ['uploadedFiles'],
                 'file',
-                'skipOnEmpty'   => true,
-                'extensions'    => implode(",", Yii::$app->params['allowedUploadImageExtensions']),
-                'maxFiles'      => Yii::$app->params['maxUploadFiles'],
-                'maxSize'       => Yii::$app->params['maxUploadFileSize'],
+                'skipOnEmpty' => true,
+                'extensions' => implode(",", Yii::$app->params['allowedUploadImageExtensions']),
+                'maxFiles' => Yii::$app->params['maxUploadFiles'],
+                'maxSize' => Yii::$app->params['maxUploadFileSize'],
             ],
+
+            // Custom validators methods
+            ['end_date', 'validateEndDate'],
+            ['uploadedFiles', 'validateUploadFiles', 'skipOnEmpty' => false]
+
         ];
     }
 
@@ -71,12 +76,12 @@ class Project extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
-            'id'            => Yii::t('app', 'ID'),
-            'name'          => Yii::t('app', 'Name'),
-            'tech_stack'    => Yii::t('app', 'Tech Stack'),
-            'description'   => Yii::t('app', 'Description'),
-            'start_date'    => Yii::t('app', 'Start Date'),
-            'end_date'      => Yii::t('app', 'End Date'),
+            'id' => Yii::t('app', 'ID'),
+            'name' => Yii::t('app', 'Name'),
+            'tech_stack' => Yii::t('app', 'Tech Stack'),
+            'description' => Yii::t('app', 'Description'),
+            'start_date' => Yii::t('app', 'Start Date'),
+            'end_date' => Yii::t('app', 'End Date'),
         ];
     }
 
@@ -119,7 +124,7 @@ class Project extends ActiveRecord
         }
 
         foreach ($this->uploadedFiles as $uploadedFile) {
-            Yii::$app->db->transaction(function (Connection $db) use($uploadedFile) {
+            Yii::$app->db->transaction(function (Connection $db) use ($uploadedFile) {
                 $file = new File();
                 $file->name = uniqid() . '.' . $uploadedFile->extension;
                 $file->path_url = Yii::$app->params['uploads']['projects'];
@@ -156,7 +161,8 @@ class Project extends ActiveRecord
         return $urls;
     }
 
-    public function getPreviewImageConfig(): array {
+    public function getPreviewImageConfig(): array
+    {
         $config = [];
         foreach ($this->projectImages as $image) {
             $config[] = ['key' => $image->id];
@@ -168,37 +174,6 @@ class Project extends ActiveRecord
     public function uploadImageFiles(): void
     {
         $this->uploadedFiles = UploadedFile::getInstances($this, 'uploadedFiles');
-    }
-
-    public function beforeValidate(): bool
-    {
-        $result = true;
-
-        if (!parent::beforeValidate()) {
-            $result = false;
-        }
-
-        // Check if at least one file exists (uploaded or existing)
-        $hasUploadedFiles = !empty($this->uploadedFiles);
-        $hasExistingFiles = $this->hasImage();
-
-        if (!$hasUploadedFiles && !$hasExistingFiles) {
-            $this->addError(
-                'uploadedFiles',
-                'At least one image is required. Please upload at least one image.'
-            );
-            $result = false;
-        }
-
-        if ($this->end_date !== null && $this->end_date < $this->start_date) {
-            $this->addError(
-                'end_date',
-                'End Date cannot be earlier than Start Date.'
-            );
-            $result = false;
-        }
-
-        return $result;
     }
 
     public function delete(): bool
@@ -229,5 +204,47 @@ class Project extends ActiveRecord
         return array_map(function ($imageUrl) {
             return Html::img($imageUrl, ['alt' => $this->name, 'class' => 'project-view__carousel-image']);
         }, $this->getImageUrls());
+    }
+
+    public function validateEndDate($attribute, $params): void
+    {
+        if (!empty($this->$attribute) && $this->$attribute < $this->start_date) {
+            $this->addError(
+                $attribute,
+                'End Date cannot be earlier than Start Date.'
+            );
+        }
+    }
+
+    public function validateUploadFiles($attribute, $params): void
+    {
+        // Check if at least one file exists (uploaded or existing)
+        if (empty($this->uploadedFiles) && !$this->hasImage()) {
+            $this->addError(
+                'uploadedFiles',
+                'At least one image is required. Please upload at least one image.'
+            );
+        }
+    }
+
+    public function beforeValidate(): bool
+    {
+        $result = true;
+
+        if (!parent::beforeValidate()) {
+            $result = false;
+        }
+
+//        if (true) {
+//            $this->addError(
+//                'end_date',
+//                'Before Validate Error.'
+//            );
+//
+//            $result = false;
+//        }
+
+
+        return $result;
     }
 }
