@@ -8,7 +8,6 @@ use common\models\Testimonial;
 use frontend\models\ProjectSearch;
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\debug\models\timeline\DataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

@@ -57,7 +57,7 @@ class Project extends ActiveRecord
             [
                 ['uploadedFiles'],
                 'file',
-                'skipOnEmpty'   => false,
+                'skipOnEmpty'   => true,
                 'extensions'    => implode(",", Yii::$app->params['allowedUploadImageExtensions']),
                 'maxFiles'      => Yii::$app->params['maxUploadFiles'],
                 'maxSize'       => Yii::$app->params['maxUploadFileSize'],
@@ -170,6 +170,37 @@ class Project extends ActiveRecord
         $this->uploadedFiles = UploadedFile::getInstances($this, 'uploadedFiles');
     }
 
+    public function beforeValidate(): bool
+    {
+        $result = true;
+
+        if (!parent::beforeValidate()) {
+            $result = false;
+        }
+
+        // Check if at least one file exists (uploaded or existing)
+        $hasUploadedFiles = !empty($this->uploadedFiles);
+        $hasExistingFiles = $this->hasImage();
+
+        if (!$hasUploadedFiles && !$hasExistingFiles) {
+            $this->addError(
+                'uploadedFiles',
+                'At least one image is required. Please upload at least one image.'
+            );
+            $result = false;
+        }
+
+        if ($this->end_date !== null && $this->end_date < $this->start_date) {
+            $this->addError(
+                'end_date',
+                'End Date cannot be earlier than Start Date.'
+            );
+            $result = false;
+        }
+
+        return $result;
+    }
+
     public function delete(): bool
     {
         $db = Yii::$app->db;
@@ -191,6 +222,7 @@ class Project extends ActiveRecord
             return false;
         }
     }
+
 
     public function getCarouselImageUrls(): array
     {
