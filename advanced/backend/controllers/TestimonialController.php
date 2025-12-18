@@ -85,7 +85,7 @@ class TestimonialController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post()) ) {
             $model->uploadImageFile();
-            if ($model->uploadImage()) {
+            if ($model->uploadImage() && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {

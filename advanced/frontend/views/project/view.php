@@ -1,11 +1,13 @@
 <?php
 
 use yii\bootstrap5\Carousel;
+use yii\bootstrap5\LinkPager;
 use yii\helpers\Html;
-use yii\widgets\DetailView;
+use yii\widgets\ListView;
 
 /** @var yii\web\View $this */
 /** @var common\models\Project $model */
+/** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Projects'), 'url' => ['index']];
@@ -36,10 +38,25 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <div class="project-view__description">
+        <strong><?= Yii::t('app', 'Description:') ?></strong>
         <?= Yii::$app->formatter->asHtml($model->description) ?>
     </div>
 
+    <?php if($model->testimonials): ?>
+        <hr>
+        <h2><?= Yii::t('app', 'Testimonials') ?></h2>
+        <br/>
+    <?php endif; ?>
 
-
-
+    <?= ListView::widget([
+        'dataProvider' => $dataProvider,
+        'itemOptions' => ['class' => 'project-view__testimonial-item'],
+        'itemView' => '_testimonial',
+        'layout'    => "{items}\n{pager}",  // "{summary}{items}\n{pager}" default layout
+        'pager' => [
+            'class' => LinkPager::class,
+            'options' => ['class' => 'pagination justify-content-center'],
+        ],
+    ])
+    ?>
 </div>
