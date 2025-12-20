@@ -11,6 +11,9 @@ return [
     'name' => 'Aung',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'modules' => [
+        'blog' => ['class' => 'frontend\modules\blog\Modules'],
+    ],
     'controllerNamespace' => 'frontend\controllers',
     'components' => [
         'request' => [
@@ -41,6 +44,8 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'blog'              => 'blog/post/index',
+                'blog/post/<slug>'  => 'blog/post/view'
             ],
         ],
     ],

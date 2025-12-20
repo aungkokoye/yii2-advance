@@ -1,0 +1,60 @@
+<?php
+declare(strict_types=1);
+
+namespace frontend\modules\blog\controllers;
+
+use common\models\Post;
+use frontend\modules\blog\models\PostSearch;
+use Yii;
+use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+
+/**
+ * PostController implements the CRUD actions for Post model.
+ */
+class PostController extends Controller
+{
+    /**
+     * Lists all Post models.
+     *
+     * @return string
+     */
+    public function actionIndex(): string
+    {
+        $searchModel = new PostSearch();
+        $dataProvider = $searchModel->search($this->request->queryParams);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Displays a single Post model.
+     * @param string $slug
+     * @return string
+     */
+    public function actionView(string $slug): string
+    {
+        return $this->render('view', [
+            'model' => Post::findOne(['slug' => $slug]),
+        ]);
+    }
+
+    /**
+     * Finds the Post model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return Post the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel(int $id): Post
+    {
+        if (($model = Post::findOne(['id' => $id])) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+    }
+}

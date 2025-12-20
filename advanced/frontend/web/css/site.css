@@ -182,3 +182,21 @@ a.desc:after {
 .project-view__testimonial-info * {
     display: inline;
 }
+
+.post {
+    margin-bottom: 30px;
+}
+
+.post > a {
+    text-decoration: none;
+}
+
+.post-created_at {
+    font-weight: 300;
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+}
+
+.post-body {
+    font-size: 1.2rem;
+}
