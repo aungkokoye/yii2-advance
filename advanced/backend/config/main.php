@@ -14,6 +14,7 @@ return [
     'bootstrap' => ['log'],
     'modules' => [
         'blog' => ['class' => 'backend\modules\blog\Modules'],
+        'goal' => ['class' => 'backend\modules\goal\Modules']
     ],
     'container' => [
         'definitions' => [
@@ -58,6 +59,7 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'goal'              => 'goal/goal/index',
             ],
         ],
     ],
