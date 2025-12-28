@@ -31,13 +31,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'name',
-            'created_by',
             [
-                'attribute'     => 'Created By:',
-                'value'         => function ($model) {
-                    /** @var  Goal $model */
-                    return $model->createdBy->username;
-                },
+                'label'         => 'Created By',
+                'attribute'     => 'created_by',
+                'value'         => 'createdBy.username',
+//                'value'         => function ($model) {
+//                    /** @var  Goal $model */
+//                    return $model->createdBy->username;
+//                },
             ],
             'created_at:datetime',
             'updated_at:datetime',

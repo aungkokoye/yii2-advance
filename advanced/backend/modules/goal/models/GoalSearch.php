@@ -15,8 +15,8 @@ class GoalSearch extends Goal
     public function rules(): array
     {
         return [
-            [['id', 'created_by'], 'integer'],
-            [['name', 'created_at', 'updated_at'], 'safe'],
+            [['id'], 'integer'],
+            [['name', 'created_at', 'updated_at', 'created_by'], 'safe'],
         ];
     }
 
@@ -36,7 +36,7 @@ class GoalSearch extends Goal
      */
     public function search(array $params, ?string $formName = null): ActiveDataProvider
     {
-        $query = Goal::find()->with('createdBy');
+        $query = Goal::find()->joinWith('createdBy');
 
         // add conditions that should always apply here
 
@@ -54,13 +54,13 @@ class GoalSearch extends Goal
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'created_by' => $this->created_by,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'goal.id' => $this->id,
+            'goal.created_at' => $this->created_at,
+            'goal.updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'goal.name', $this->name]);
+        $query->andFilterWhere(['like', 'user.username', $this->created_by]);
 
         return $dataProvider;
     }

@@ -150,9 +150,9 @@ class SiteController extends Controller
     /**
      * Signs user up.
      *
-     * @return mixed
+     * @return string|Response
      */
-    public function actionSignup()
+    public function actionSignup(): string|Response
     {
         $model = new SignupForm();
         if ($model->load(Yii::$app->request->post()) && $model->signup()) {

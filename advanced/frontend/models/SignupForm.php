@@ -2,9 +2,11 @@
 
 namespace frontend\models;
 
+use console\controllers\RbacController;
 use Yii;
 use yii\base\Model;
 use common\models\User;
+use yii\db\Exception;
 
 /**
  * Signup form
@@ -41,9 +43,10 @@ class SignupForm extends Model
     /**
      * Signs user up.
      *
-     * @return bool whether the creating new account was successful and email was sent
+     * @return null|bool whether the creating new account was successful and email was sent
+     * @throws \Throwable
      */
-    public function signup()
+    public function signup(): ?bool
     {
         if (!$this->validate()) {
             return null;
@@ -56,7 +59,16 @@ class SignupForm extends Model
         $user->generateAuthKey();
         $user->generateEmailVerificationToken();
 
-        return $user->save() && $this->sendEmail($user);
+        $result  = $user->save() && $this->sendEmail($user);
+
+        // every user gets the "author" role upon signup
+        if ($result) {
+            $auth = Yii::$app->authManager;
+            $authorRole = $auth->getRole(RbacController::ROLE_AUTHOR);
+            $auth->assign($authorRole, $user->getId());
+        }
+
+        return $result;
     }
 
     /**

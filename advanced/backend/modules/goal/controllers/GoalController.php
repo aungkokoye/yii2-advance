@@ -33,12 +33,7 @@ class GoalController extends Controller
                     'class' => AccessControl::class,
                     'rules' => [
                         [
-                            'actions' => ['index', 'view'],
-                            'allow' => true,
-                            'roles' => ['?', '@'],
-                        ],
-                        [
-                            'actions' => ['create', 'update', 'delete'],
+                            'actions' => ['index', 'view', 'create', 'update', 'delete'],
                             'allow' => true,
                             'roles' => ['@'],
                         ],
@@ -59,7 +54,7 @@ class GoalController extends Controller
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -111,6 +106,11 @@ class GoalController extends Controller
     {
         $model = $this->findModel($id);
 
+        // Check if user can update this record
+        if (!Yii::$app->user->can('updateRecord', ['model' => $model])) {
+            throw new \yii\web\ForbiddenHttpException(Yii::t('app', 'You are not allowed to update this record.'));
+        }
+
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
@@ -131,7 +131,14 @@ class GoalController extends Controller
      */
     public function actionDelete(int $id): Response
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        // Check if user can delete this record
+        if (!Yii::$app->user->can('deleteRecord', ['model' => $model])) {
+            throw new \yii\web\ForbiddenHttpException(Yii::t('app', 'You are not allowed to delete this record.'));
+        }
+
+        $model->delete();
 
         return $this->redirect(['index']);
     }
